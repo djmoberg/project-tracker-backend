@@ -60,7 +60,7 @@ router.get('/:id', function (req, res, next) {
                         if (!err) {
                             db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ?', data3, function (err, rows, fields) {
                                 if (!err) {
-                                    // req.session.selectedProject = req.params.id
+                                    req.session.selectedProject = req.params.id
                                     res.json({name: project.name, overview: rows})
                                 }
                                 else

@@ -16,6 +16,7 @@ var authenticateRouter = require('./routes/authenticate')
 var userRouter = require('./routes/user')
 var projectsRouter = require('./routes/projects')
 var projectRouter = require('./routes/project')
+var workRouter = require('./routes/work')
 
 var app = express();
 
@@ -50,6 +51,7 @@ app.use('/authenticate', authenticateRouter)
 app.use('/user', userRouter)
 app.use('/projects', projectsRouter)
 app.use('/project', projectRouter)
+app.use('/work', workRouter)
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies

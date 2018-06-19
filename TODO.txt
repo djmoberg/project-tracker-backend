@@ -1,0 +1,11 @@
+API functions:
+- addWork               / INSERT INTO work (user, workDate, workFrom, workTo, comment) VALUES('$id', '$date', '$from', '$to', '$comment')
+- deleteUser            / DELETE FROM users WHERE id = $id
+- deleteWork            / DELETE FROM work WHERE id = $id
+- editWork              / UPDATE work SET workDate = '$date', workFrom = '$from', workTo = '$to', comment = '$comment' WHERE id = $id
+- getUser (getWork?)    / SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment 
+                          FROM work INNER JOIN users ON users.id = work.user WHERE work.user = $userId
+- getUsers              / SELECT id, name FROM users WHERE name != '$loggedInUserName'
+- moveWork              / INSERT INTO deletedWork (id, user, workDate, workFrom, workTo, comment) VALUES('$id', '$user', '$date', '$from', '$to', '$comment')
+- newPassword           / UPDATE users SET password = '$newPassword2' WHERE id = $id
+- userLogin             / SELECT * FROM users WHERE name = '$uname'
