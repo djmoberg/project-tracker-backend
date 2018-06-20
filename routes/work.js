@@ -10,7 +10,14 @@ router.post('/add', function (req, res, next) {
         ]
         db.query('INSERT INTO work (user, project, workDate, workFrom, workTo, comment) VALUES (?)', data, function (err, rows, fields) {
             if (!err) {
-                res.send("Work added")
+                let data2 = [req.session.selectedProject]
+                db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ?', data2, function (err, rows, fields) {
+                    if (!err) {
+                        res.json({status: "Work added", overview: rows})
+                    }
+                    else
+                        console.log(err);
+                });
             }
             else
                 console.log(err);
