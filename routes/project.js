@@ -45,6 +45,28 @@ router.post('/register', function (req, res, next) {
 //     }
 // });
 
+router.get('/users', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.session.selectedProject]
+            db.query('SELECT users.name FROM user_project INNER JOIN users ON user_project.user_id = users.id WHERE user_project.project_id = ?', data, (err, rows, fields) => {
+                if (!err) {
+                    res.json(rows)
+                } else {
+                    console.log(err)
+                }
+            })
+        } else (
+            res.send("unauthorized2")
+        )
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.get('/:id', function (req, res, next) {
     if (req.user) {
         let data = [req.user._id, req.params.id]
@@ -61,7 +83,7 @@ router.get('/:id', function (req, res, next) {
                             db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ?', data3, function (err, rows, fields) {
                                 if (!err) {
                                     req.session.selectedProject = req.params.id
-                                    res.json({name: project.name, overview: rows})
+                                    res.json({ name: project.name, overview: rows })
                                 }
                                 else
                                     console.log(err);
