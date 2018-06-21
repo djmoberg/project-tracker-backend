@@ -13,15 +13,18 @@ router.post('/register', function (req, res, next) {
                 let data2 = [
                     [req.user._id, rows.insertId]
                 ]
-                db.query('INSERT INTO user_project (user_id, project_id) VALUES (?)', data2, function (err, rows, fields) {
+                db.query('INSERT INTO user_project (user_id, project_id) VALUES (?)', data2, function (err, rows2, fields) {
                     if (!err) {
-                        res.send("Project added")
-                    }
-                    else
+                        db.query('INSERT INTO admin_project (user_id, project_id) VALUES (?)', data2, (err, rows3, fields) => {
+                            if (!err)
+                                res.send("Project added")
+                            else
+                                console.log(err)
+                        })
+                    } else
                         console.log(err);
                 });
-            }
-            else
+            } else
                 console.log(err);
         });
     } else {
@@ -55,6 +58,64 @@ router.get('/users', (req, res, next) => {
             db.query('SELECT users.name FROM user_project INNER JOIN users ON user_project.user_id = users.id WHERE user_project.project_id = ?', data, (err, rows, fields) => {
                 if (!err) {
                     res.json(rows)
+                } else {
+                    console.log(err)
+                }
+            })
+        } else (
+            res.send("unauthorized2")
+        )
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.post('/addUser', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.body.username]
+            db.query('SELECT id FROM users WHERE name = ?', data, (err, rows, fields) => {
+                if (!err) {
+                    let data2 = [[rows[0].id, req.session.selectedProject]]
+                    db.query('INSERT INTO user_project (user_id, project_id) VALUES (?)', data2, (err, rows, fields) => {
+                        if (!err) {
+                            res.send("User added")
+                        } else {
+                            console.log(err)
+                        }
+                    })
+                } else {
+                    console.log(err)
+                }
+            })
+        } else (
+            res.send("unauthorized2")
+        )
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.delete('/removeUser', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.body.username]
+            db.query('SELECT id FROM users WHERE name = ?', data, (err, rows, fields) => {
+                if (!err) {
+                    let data2 = [rows[0].id, req.session.selectedProject]
+                    db.query('DELETE FROM user_project WHERE user_id = ? AND project_id = ?', data2, (err, rows, fields) => {
+                        if (!err) {
+                            res.send("User removed")
+                        } else {
+                            console.log(err)
+                        }
+                    })
                 } else {
                     console.log(err)
                 }
