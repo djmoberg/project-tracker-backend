@@ -27,4 +27,34 @@ router.post('/add', function (req, res, next) {
     }
 });
 
+router.put('/edit', (req, res, next) => {
+    if (req.user) { //TODO sjekke om arbeidet tilhører brukeren?
+        let data = [req.body.workDate, req.body.workFrom, req.body.workTo, req.body.comment, req.body.id, req.session.selectedProject]
+        db.query('UPDATE work SET workDate = ?, workFrom = ?, workTo = ?, comment = ? WHERE id = ? AND project = ?', data, (err, rows, fields) => {
+            if (!err) {
+                res.send("Work edited")
+            } else {
+                console.log(err)
+            }
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.delete('/delete', (req, res, next) => {
+    if (req.user) { //TODO sjekke om arbeidet tilhører brukeren?
+        let data = [req.body.id, req.session.selectedProject]
+        db.query('DELETE FROM work WHERE id = ? AND project = ?', data, (err, rows, fields) => {
+            if (!err) {
+                res.send("Work deleted")
+            } else {
+                console.log(err)
+            }
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 module.exports = router;
