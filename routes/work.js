@@ -11,7 +11,7 @@ router.post('/add', function (req, res, next) {
         db.query('INSERT INTO work (user, project, workDate, workFrom, workTo, comment) VALUES (?)', data, function (err, rows, fields) {
             if (!err) {
                 let data2 = [req.session.selectedProject]
-                db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ?', data2, function (err, rows, fields) {
+                db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ? ORDER BY work.workDate DESC', data2, function (err, rows, fields) {
                     if (!err) {
                         res.json({status: "Work added", overview: rows})
                     }
@@ -32,7 +32,14 @@ router.put('/edit', (req, res, next) => {
         let data = [req.body.workDate, req.body.workFrom, req.body.workTo, req.body.comment, req.body.id, req.session.selectedProject]
         db.query('UPDATE work SET workDate = ?, workFrom = ?, workTo = ?, comment = ? WHERE id = ? AND project = ?', data, (err, rows, fields) => {
             if (!err) {
-                res.send("Work edited")
+                let data2 = [req.session.selectedProject]
+                db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ? ORDER BY work.workDate DESC', data2, function (err, rows, fields) {
+                    if (!err) {
+                        res.json({status: "Work edited", overview: rows})
+                    }
+                    else
+                        console.log(err);
+                });
             } else {
                 console.log(err)
             }
@@ -47,7 +54,14 @@ router.delete('/delete', (req, res, next) => {
         let data = [req.body.id, req.session.selectedProject]
         db.query('DELETE FROM work WHERE id = ? AND project = ?', data, (err, rows, fields) => {
             if (!err) {
-                res.send("Work deleted")
+                let data2 = [req.session.selectedProject]
+                db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ? ORDER BY work.workDate DESC', data2, function (err, rows, fields) {
+                    if (!err) {
+                        res.json({status: "Work deleted", overview: rows})
+                    }
+                    else
+                        console.log(err);
+                });
             } else {
                 console.log(err)
             }
