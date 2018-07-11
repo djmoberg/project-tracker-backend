@@ -55,9 +55,23 @@ router.get('/users', (req, res, next) => {
         })
         if (isAdmin) {
             let data = [req.session.selectedProject]
-            db.query('SELECT users.name FROM user_project INNER JOIN users ON user_project.user_id = users.id WHERE user_project.project_id = ?', data, (err, rows, fields) => {
+            db.query('SELECT users.id, users.name FROM user_project INNER JOIN users ON user_project.user_id = users.id WHERE user_project.project_id = ?', data, (err, rows, fields) => {
                 if (!err) {
-                    res.json(rows)
+                    db.query('SELECT user_id FROM admin_project WHERE project_id = ?', data, (err, rows2, fields) => {
+                        if (!err) {
+                            let users = []
+                            rows.forEach(user => {
+                                let isAdmin2 = rows2.some(row => {
+                                    return parseInt(user.id, 10) === parseInt(row.user_id, 10)
+                                })
+                                users.push({ name: user.name, isAdmin: isAdmin2 })
+                            });
+                            res.json(users)
+                        } else {
+                            console.log(err)
+                        }
+                    })
+                    // res.json(rows)
                 } else {
                     console.log(err)
                 }
@@ -123,6 +137,34 @@ router.delete('/removeUser', (req, res, next) => {
         } else (
             res.send("unauthorized2")
         )
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.post('/makeAdmin', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.body.username]
+            db.query('SELECT id FROM users WHERE name = ?', data, (err, rows, fields) => {
+                if (!err) {
+                    let data2 = [[rows[0].id, req.session.selectedProject]]
+                    db.query('INSERT INTO admin_project (user_id, project_id) VALUES (?)', data2, (err, rows, fields) => {
+                        if (!err)
+                            res.send("New admin")
+                        else
+                            console.log(err)
+                    })
+                } else {
+                    console.log(err)
+                }
+            })
+        } else {
+            res.send("unauthorized")
+        }
     } else {
         res.send("unauthorized")
     }
