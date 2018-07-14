@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
+var MemcachedStore = require('connect-memcached')(session);
 var bodyParser = require('body-parser');
 var cors = require('cors')
 var auth = require('./auth')
@@ -30,7 +31,10 @@ app.use(session({
 	secret: 'keyboard cat',
 	resave: false,
 	saveUninitialized: true,
-	cookie: { secure: false }
+	cookie: { secure: false },
+	store: new MemcachedStore({
+        hosts: [process.env.MEMCACHE_URL || '127.0.0.1:11211']
+})
 }))
 
 app.use(auth.initialize());
