@@ -62,4 +62,27 @@ router.put('/newPassword', (req, res, next) => {
     }
 })
 
+router.post('/sendNewPassword', (req, res, next) => {
+    require('crypto').randomBytes(4, (err, buffer) => {
+        let newPass = buffer.toString('hex')
+
+        email.send({
+            from: '"Facelex" <noreply@facelex.com>', // sender address
+            to: req.body.email, // list of receivers
+            subject: 'Nytt passord', // Subject line
+            text: 'Ditt nye passord er: ' + newPass, // plain text body
+        })
+
+        bcrypt.hash(newPass, 10, function (err, hash) {
+            let data = [hash, req.body.email]
+            db.query('UPDATE users SET password = ? WHERE email = ?', data, (err, rows, fields) => {
+                if (!err)
+                    res.send("New password sent")
+                else
+                    console.log(err)
+            })
+        })
+    })
+})
+
 module.exports = router;
