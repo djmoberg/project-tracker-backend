@@ -6,12 +6,12 @@ const bcrypt = require('bcrypt');
 var email = require('../email')
 
 router.post('/register', function (req, res, next) {
-    email.send({
-        from: '"Facelex" <noreply@facelex.com>', // sender address
-        to: req.body.email, // list of receivers
-        subject: 'Velkommen', // Subject line
-        text: 'Velkommen til Facelex!', // plain text body
-    })
+    // email.send({
+    //     from: '"Facelex" <noreply@facelex.com>', // sender address
+    //     to: req.body.email, // list of receivers
+    //     subject: 'Velkommen', // Subject line
+    //     text: 'Velkommen til Facelex!', // plain text body
+    // })
 
     bcrypt.hash(req.body.password, 10, function (err, hash) {
         let data = [
