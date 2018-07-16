@@ -84,6 +84,21 @@ router.get('/users', (req, res, next) => {
     }
 })
 
+router.get('/allUsers', (req, res, next) => {
+    if (req.user) {
+        let data = [req.session.selectedProject]
+        db.query('SELECT users.id, users.name FROM user_project INNER JOIN users ON user_project.user_id = users.id WHERE user_project.project_id = ?', data, (err, rows, fields) => {
+            if (!err) {
+                res.json(rows)
+            } else {
+                console.log(err)
+            }
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.post('/addUser', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {
