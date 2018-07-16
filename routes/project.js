@@ -185,6 +185,59 @@ router.post('/makeAdmin', (req, res, next) => {
     }
 })
 
+router.delete('/', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let sql1 = 'DELETE FROM admin_project WHERE project_id = ?'
+            let sql2 = 'DELETE FROM deletedWork WHERE project = ?'
+            let sql3 = 'DELETE FROM user_project WHERE project_id = ?'
+            let sql4 = 'DELETE FROM work WHERE project = ?'
+            let sql5 = 'DELETE FROM workTimers WHERE project_id = ?'
+            let sql6 = 'DELETE FROM projects WHERE id = ?'
+            let data = [req.session.selectedProject]
+
+            db.query(sql1, data, (err, rows, fields) => {
+                if (!err)
+                    db.query(sql2, data, (err, rows, fields) => {
+                        if (!err)
+                            db.query(sql3, data, (err, rows, fields) => {
+                                if (!err)
+                                    db.query(sql4, data, (err, rows, fields) => {
+                                        if (!err)
+                                            db.query(sql5, data, (err, rows, fields) => {
+                                                if (!err)
+                                                    db.query(sql6, data, (err, rows, fields) => {
+                                                        if (!err)
+                                                            res.send("Project deleted")
+                                                        else
+                                                            console.log(err)
+                                                    })
+                                                else
+                                                    console.log(err)
+                                            })
+                                        else
+                                            console.log(err)
+                                    })
+                                else
+                                    console.log(err)
+                            })
+                        else
+                            console.log(err)
+                    })
+                else
+                    console.log(err)
+            })
+        } else {
+            res.send("unauthorized")
+        }
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.get('/:id', function (req, res, next) {
     if (req.user) {
         let data = [req.user._id, req.params.id]
