@@ -185,6 +185,48 @@ router.post('/makeAdmin', (req, res, next) => {
     }
 })
 
+router.get('/joinRequests', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.session.selectedProject]
+            db.query('SELECT users.id, users.name FROM request_project INNER JOIN users ON request_project.user_id = users.id WHERE request_project.project_id = ?', data, (err, rows, fields) => {
+                if (!err)
+                    res.json(rows)
+                else
+                    console.log(err)
+            })
+        } else {
+            res.send("unauthorized")
+        }
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.delete('/joinRequests', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.body.userId, req.session.selectedProject]
+            db.query('DELETE FROM request_project WHERE user_id = ? AND project_id = ?', data, (err, rows, fields) => {
+                if (!err)
+                    res.send("Request deleted")
+                else
+                    console.log(err)
+            })
+        } else {
+            res.send("unauthorized")
+        }
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.delete('/', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {

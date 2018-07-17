@@ -13,4 +13,32 @@ router.get('/', function (req, res, next) {
     });
 });
 
+router.get('/find/:input', function (req, res, next) {
+	if (req.user) {
+		let data = [req.params.input]
+		db.query("SELECT id, name FROM projects WHERE name LIKE ?", req.params.input + '%', (err, rows, fields) => {
+			if (!err)
+				res.json(rows)
+			else
+				console.log(err)
+		})
+	} else {
+		res.send("unauthorized")
+	}
+});
+
+router.post('/joinRequest', function (req, res, next) {
+	if (req.user) {
+		let data = [[req.user._id, req.body.projectId]]
+		db.query("INSERT INTO request_project (user_id, project_id) VALUES (?)", data, (err, rows, fields) => {
+			if (!err)
+				res.send("Request sent")
+			else
+				console.log(err)
+		})
+	} else {
+		res.send("unauthorized")
+	}
+});
+
 module.exports = router;
