@@ -85,4 +85,32 @@ router.post('/sendNewPassword', (req, res, next) => {
     })
 })
 
+router.get('/pendingJoinRequests', (req, res, next) => {
+    if (req.user) {
+        let data = [req.user._id]
+        db.query('SELECT projects.id, projects.name FROM request_project INNER JOIN projects ON request_project.project_id = projects.id WHERE request_project.user_id = ?', data, (err, rows, fields) => {
+            if (!err)
+                res.json(rows)
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.delete('/pendingJoinRequest', (req, res, next) => {
+    if (req.user) {
+        let data = [req.user._id, req.body.projectId]
+        db.query('DELETE FROM request_project WHERE user_id = ? AND project_id = ?', data, (err, rows, fields) => {
+            if (!err)
+                res.send("Request deleted")
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 module.exports = router;
