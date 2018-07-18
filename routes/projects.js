@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
 router.get('/find/:input', function (req, res, next) {
 	if (req.user) {
 		let data = [req.params.input]
-		db.query("SELECT id, name FROM projects WHERE name LIKE ?", req.params.input + '%', (err, rows, fields) => {
+		db.query("SELECT id, name, description FROM projects WHERE name LIKE ?", req.params.input + '%', (err, rows, fields) => {
 			if (!err)
 				res.json(rows)
 			else

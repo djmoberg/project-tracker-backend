@@ -6,9 +6,9 @@ var db = require('../db');
 router.post('/register', function (req, res, next) {
     if (req.user) {
         let data = [
-            [req.body.name]
+            [req.body.name, req.body.description]
         ]
-        db.query('INSERT INTO projects (name) VALUES (?)', data, function (err, rows, fields) {
+        db.query('INSERT INTO projects (name, description) VALUES (?)', data, function (err, rows, fields) {
             if (!err) {
                 let data2 = [
                     [req.user._id, rows.insertId]
@@ -17,7 +17,7 @@ router.post('/register', function (req, res, next) {
                     if (!err) {
                         db.query('INSERT INTO admin_project (user_id, project_id) VALUES (?)', data2, (err, rows3, fields) => {
                             if (!err)
-                                res.send("Project added")
+                                res.json({ msg: "Project added", projectId: rows.insertId })
                             else
                                 console.log(err)
                         })
@@ -227,6 +227,27 @@ router.delete('/joinRequests', (req, res, next) => {
     }
 })
 
+router.put('/', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.body.newName, req.body.newDescription, req.session.selectedProject]
+            db.query('UPDATE projects SET name = ?, description = ? WHERE id = ?', data, (err, rows, fields) => {
+                if (!err)
+                    res.send("Project updated")
+                else
+                    console.log(err)
+            })
+        } else {
+            res.send("unauthorized")
+        }
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.delete('/', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {
@@ -296,7 +317,7 @@ router.get('/:id', function (req, res, next) {
                             db.query('SELECT work.id, users.name, work.workDate, work.workFrom, work.workTo, work.comment FROM work INNER JOIN users ON users.id = work.user WHERE work.project = ? ORDER BY work.workDate DESC', data3, function (err, rows, fields) {
                                 if (!err) {
                                     req.session.selectedProject = req.params.id
-                                    res.json({ name: project.name, overview: rows })
+                                    res.json({ name: project.name, description: project.description, overview: rows })
                                 }
                                 else
                                     console.log(err);
