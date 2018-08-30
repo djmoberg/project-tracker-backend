@@ -18,6 +18,7 @@ var projectsRouter = require('./routes/projects')
 var projectRouter = require('./routes/project')
 var workRouter = require('./routes/work')
 var workTimerRouter = require('./routes/workTimer')
+// var pdfMakeRouter = require('./routes/pdfMake')
 
 var app = express();
 
@@ -54,6 +55,7 @@ app.use('/projects', projectsRouter)
 app.use('/project', projectRouter)
 app.use('/work', workRouter)
 app.use('/workTimer', workTimerRouter)
+// app.use('/pdfMake', pdfMakeRouter)
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
