@@ -124,4 +124,18 @@ router.delete('/trash', (req, res, next) => {
     }
 })
 
+router.delete('/flutterTrash/:id', (req, res, next) => {
+    if (req.user) {
+        let data = [req.params.id]
+        db.query('DELETE FROM deletedWork WHERE id = ?', data, (err, rows, fields) => {
+            if (!err)
+                res.send("Work deleted")
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 module.exports = router;
