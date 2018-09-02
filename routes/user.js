@@ -113,4 +113,18 @@ router.delete('/pendingJoinRequest', (req, res, next) => {
     }
 })
 
+router.delete('/flutterPendingJoinRequest/:projectId', (req, res, next) => {
+    if (req.user) {
+        let data = [req.user._id, req.params.projectId]
+        db.query('DELETE FROM request_project WHERE user_id = ? AND project_id = ?', data, (err, rows, fields) => {
+            if (!err)
+                res.send("Request deleted")
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 module.exports = router;
