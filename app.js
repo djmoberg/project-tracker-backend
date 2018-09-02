@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 var bodyParser = require('body-parser');
 var cors = require('cors')
 var auth = require('./auth')
@@ -28,6 +29,7 @@ app.use(cors({
 }))
 // app.use(cookieParser());
 app.use(session({
+	store: new FileStore({ ttl: 604800 }), //1 week
 	secret: 'keyboard cat',
 	resave: false,
 	saveUninitialized: true,
