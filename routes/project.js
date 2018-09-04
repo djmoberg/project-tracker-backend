@@ -157,6 +157,35 @@ router.delete('/removeUser', (req, res, next) => {
     }
 })
 
+router.delete('/flutterRemoveUser/:username', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.params.username]
+            db.query('SELECT id FROM users WHERE name = ?', data, (err, rows, fields) => {
+                if (!err) {
+                    let data2 = [rows[0].id, req.session.selectedProject]
+                    db.query('DELETE FROM user_project WHERE user_id = ? AND project_id = ?', data2, (err, rows, fields) => {
+                        if (!err) {
+                            res.send("User removed")
+                        } else {
+                            console.log(err)
+                        }
+                    })
+                } else {
+                    console.log(err)
+                }
+            })
+        } else (
+            res.send("unauthorized2")
+        )
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.post('/makeAdmin', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {
