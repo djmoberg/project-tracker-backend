@@ -256,6 +256,27 @@ router.delete('/joinRequests', (req, res, next) => {
     }
 })
 
+router.delete('/flutterJoinRequests/:userId', (req, res, next) => {
+    if (req.user) {
+        let isAdmin = req.user.isAdmin.some(id => {
+            return parseInt(id, 10) === parseInt(req.session.selectedProject, 10)
+        })
+        if (isAdmin) {
+            let data = [req.params.userId, req.session.selectedProject]
+            db.query('DELETE FROM request_project WHERE user_id = ? AND project_id = ?', data, (err, rows, fields) => {
+                if (!err)
+                    res.send("Request deleted")
+                else
+                    console.log(err)
+            })
+        } else {
+            res.send("unauthorized")
+        }
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.put('/', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {
