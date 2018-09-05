@@ -5,6 +5,11 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "nodemonConfig": {
+    "ignore": [
+      "sessions"
+    ]
+  },
   "dependencies": {
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
