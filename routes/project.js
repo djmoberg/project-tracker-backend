@@ -277,6 +277,35 @@ router.delete('/flutterJoinRequests/:userId', (req, res, next) => {
     }
 })
 
+router.post('/image', (req, res, next) => {
+    if (req.user) {
+        let url = req.body.imageUrl
+        let data = [[url, req.session.selectedProject]]
+        db.query('INSERT INTO image_project (image_url, project_id) VALUES (?)', data, (err, rows, fields) => {
+            if (!err)
+                res.send("Image added")
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
+router.get('/images', (req, res, next) => {
+    if (req.user) {
+        let data = [req.session.selectedProject]
+        db.query('SELECT image_url FROM image_project WHERE project_id = ?', data, (err, rows, fields) => {
+            if (!err)
+                res.json(rows)
+            else
+                console.log(err)
+        })
+    } else {
+        res.send("unauthorized")
+    }
+})
+
 router.put('/', (req, res, next) => {
     if (req.user) {
         let isAdmin = req.user.isAdmin.some(id => {
